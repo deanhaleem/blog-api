@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "scripts": {
+    "build": "tsc && npx mikro-orm-esm cache:generate --combined && vite build",
+    "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server.ts"
+  },
+  "dependencies": {
+    "@mikro-orm/core": "^6.3.7",
+    "@mikro-orm/reflection": "^6.3.7",
+    "@mikro-orm/sqlite": "^6.3.7"
+  },
+  "devDependencies": {
+    "@mikro-orm/cli": "^6.3.7",
+    "@types/node": "^22.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
+  }
+}
