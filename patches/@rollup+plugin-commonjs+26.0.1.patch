@@ -1,0 +1,100 @@
+diff --git a/node_modules/@rollup/plugin-commonjs/dist/es/index.js b/node_modules/@rollup/plugin-commonjs/dist/es/index.js
+index e5f7d8c..f6382ac 100644
+--- a/node_modules/@rollup/plugin-commonjs/dist/es/index.js
++++ b/node_modules/@rollup/plugin-commonjs/dist/es/index.js
+@@ -1331,7 +1331,8 @@ function getRequireHandlers() {
+     isEsModule,
+     isDynamicRequireModulesEnabled,
+     getIgnoreTryCatchRequireStatementMode,
+-    commonjsMeta
++    commonjsMeta,
++    ignoreRequires
+   ) {
+     const imports = [];
+     imports.push(`import * as ${helpersName} from "${HELPERS_ID}"`);
+@@ -1364,13 +1365,17 @@ function getRequireHandlers() {
+         };
+       })
+     );
++
+     processRequireExpressions(
+       imports,
+       requireTargets,
+       requiresBySource,
+       getIgnoreTryCatchRequireStatementMode,
+-      magicString
++      magicString,
++      ignoreRequires
+     );
++
++
+     return imports.length ? `${imports.join(';\n')};\n\n` : '';
+   }
+ 
+@@ -1398,7 +1403,8 @@ function processRequireExpressions(
+   requireTargets,
+   requiresBySource,
+   getIgnoreTryCatchRequireStatementMode,
+-  magicString
++  magicString,
++  ignoreRequires
+ ) {
+   const generateRequireName = getGenerateRequireName();
+   for (const { source, id: resolvedId, isCommonJS } of requireTargets) {
+@@ -1410,7 +1416,7 @@ function processRequireExpressions(
+       const { canConvertRequire, shouldRemoveRequire } =
+         isInsideTryBlock && isWrappedId(resolvedId, EXTERNAL_SUFFIX)
+           ? getIgnoreTryCatchRequireStatementMode(source)
+-          : { canConvertRequire: true, shouldRemoveRequire: false };
++          : { canConvertRequire: !ignoreRequires.find((entry) => entry === source), shouldRemoveRequire: false };
+       if (shouldRemoveRequire) {
+         if (usesReturnValue) {
+           magicString.overwrite(node.start, node.end, 'undefined');
+@@ -1429,6 +1435,7 @@ function processRequireExpressions(
+         }
+       }
+     }
++
+     if (needsImport) {
+       if (isCommonJS === IS_WRAPPED_COMMONJS) {
+         imports.push(`import { __require as ${name} } from ${JSON.stringify(resolvedId)}`);
+@@ -1486,7 +1493,8 @@ async function transformCommonjs(
+   resolveRequireSourcesAndUpdateMeta,
+   isRequired,
+   checkDynamicRequire,
+-  commonjsMeta
++  commonjsMeta,
++  ignoreRequires
+ ) {
+   const ast = astCache || tryParse(parse, code, id);
+   const magicString = new MagicString(code);
+@@ -1947,8 +1955,10 @@ async function transformCommonjs(
+     isEsModule,
+     isDynamicRequireModulesEnabled,
+     getIgnoreTryCatchRequireStatementMode,
+-    commonjsMeta
++    commonjsMeta,
++    ignoreRequires
+   );
++
+   const usesRequireWrapper = commonjsMeta.isCommonJS === IS_WRAPPED_COMMONJS;
+   const exportBlock = isEsModule
+     ? ''
+@@ -2000,7 +2010,6 @@ function ${requireName} () {
+     .trim()
+     .prepend(shebang + leadingComment + importBlock)
+     .append(exportBlock);
+-
+   return {
+     code: magicString.toString(),
+     map: sourceMap ? magicString.generateMap() : null,
+@@ -2152,7 +2161,8 @@ function commonjs(options = {}) {
+       requireResolver.resolveRequireSourcesAndUpdateMeta(this),
+       requireResolver.isRequiredId(id),
+       checkDynamicRequire,
+-      commonjsMeta
++      commonjsMeta,
++      options.ignoreRequires
+     );
+   }
+ 

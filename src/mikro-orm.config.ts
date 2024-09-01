@@ -1,16 +1,11 @@
 import { Options, SqliteDriver } from "@mikro-orm/sqlite";
-import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
-import { User } from "./user.entity.js";
 
 const config: Options = {
-  // for simplicity, we use the SQLite database, as it's available pretty much everywhere
   driver: SqliteDriver,
   dbName: "sqlite.db",
-  entities: [User],
-  // we will use the ts-morph reflection, an alternative to the default reflect-metadata provider
-  // check the documentation for their differences: https://mikro-orm.io/docs/metadata-providers
-  metadataProvider: TsMorphMetadataProvider,
-  // enable debug mode to log SQL queries and discovery information
+  discovery: {
+    warnWhenNoEntities: false,
+  },
   debug: true,
 };
 
