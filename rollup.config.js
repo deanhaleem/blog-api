@@ -12,8 +12,7 @@ export default {
   plugins: [
     json(),
     commonjs({
-      ignore: ["../../package.json"],
-      ignoreRequires: [
+      ignore: [
         "better-sqlite3",
         "mariadb/callback",
         "tedious",

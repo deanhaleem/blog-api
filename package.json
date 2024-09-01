@@ -1,15 +1,14 @@
 {
   "type": "module",
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "npm run build-vite && npm run build-rollup && npm run build-esb",
+    "build-vite": "tsc && vite build",
     "build-esb": "esbuild src/server.ts --bundle --outfile=dist/bundle-esb.cjs --platform=node '--external:pg' '--external:better-sqlite3' '--external:pg-query-stream' '--external:mydql2' '--external:mariadb/callback' '--external:libsql' '--external:oracledb' '--external:mysql' '--external:mysql2' '--external:tedious'",
-    "build-rollup": "rollup --config rollup.config.js",
-    "postinstall": "patch-package"
+    "build-rollup": "rollup --config rollup.config.js"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.3.7",
-    "@mikro-orm/sqlite": "^6.3.7",
-    "patch-package": "^8.0.0"
+    "@mikro-orm/sqlite": "^6.3.7"
   },
   "devDependencies": {
     "@mikro-orm/cli": "^6.3.7",
